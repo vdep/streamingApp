@@ -15,7 +15,7 @@ Autoregressive integrated moving average (ARIMA) model from spark-ts library, wh
 
 The forecasted value is stored in another Cassandra table along with percentage change in the value and trend, when compared to previous interval. This data can be visualized using D3.js in both real time and batch mode.  
 
-output from tables containing aggregated and forecast data in Cassandra:
+output from Cassandra tables containing aggregated and forecasted data:
 
      cqlsh> select * from test.averaged;
     
