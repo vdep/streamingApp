@@ -1,4 +1,4 @@
-[0m[[0minfo[0m] [0mPackaging /home/vdep/Documents/kafkaDirect/target/scala-2.10/kafkadirect_2.10-1.0.jar ...[0m
+[0m[[0minfo[0m] [0mPackaging /home/vdep/Documents/kafkaDirect/target/scala-2.10/sparkstockforecast_2.10-1.0.jar ...[0m
 [0m[[0mdebug[0m] [0mInput file mappings:[0m
 [0m[[0mdebug[0m] [0m	weekEndProjects/streamingApps/StockForecast$$anonfun$main$1$$anonfun$10.class[0m
 [0m[[0mdebug[0m] [0m	  /home/vdep/Documents/kafkaDirect/target/scala-2.10/classes/weekEndProjects/streamingApps/StockForecast$$anonfun$main$1$$anonfun$10.class[0m

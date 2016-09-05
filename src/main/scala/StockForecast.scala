@@ -54,7 +54,7 @@ object StockForecast {
 
     // read historic data
     val data = new SQLContext(ssc.sparkContext).read.format("com.databricks.spark.csv").option("header", "true")
-      .option("inferSchema","true").load("/home/vdep/sparkTSacl.csv")
+      .option("inferSchema","true").load("/home/vdep/stockData/acnTrain.csv")
 
     // initial forcasting
     var avgValue = data.select("V6").rdd.map(x => x(0).toString.toDouble).collect
@@ -72,8 +72,8 @@ object StockForecast {
    // val count = ssc.sparkContext.accumulator(0)
     var count : Int = 0
     // total datapoints in the historic data
-    var existingDataPoints = 3034
-    var previousValue : Double = 12.463
+    var existingDataPoints = 2534
+    var previousValue : Double = 52.2307
     val grouped = lines.flatMap(_.split(" ")).map{ x =>
       val quotes = x.split(":")
       (quotes(0), quotes(1).toDouble)
@@ -111,13 +111,12 @@ object StockForecast {
 
       // filter the particular key(company), saving preedicted values to cassandra table 
   //    val accumulatorToInt : Int = count.value.toInt
-
-      finalResult.filter(x => x._1 == "google").map { row =>
+      finalResult.filter(x => x._1 == "ACN").map { row =>
 
         val predictedValue = forecast( existingDataPoints + count)
 
-        val predictionTableRow = (predictedValue, if(previousValue - predictedValue > 0 ) "increase" else "decrease", 
-             forecast( existingDataPoints + count -1)/previousValue -1,  scala.util.Random.nextInt(2000000))
+        val predictionTableRow = (predictedValue, if(previousValue - predictedValue < 0 ) "increase" else "decrease", 
+             (forecast( existingDataPoints + count -1)/previousValue -1) * 100,  scala.util.Random.nextInt(2000000))
  
         previousValue = row._4
         predictionTableRow
@@ -126,7 +125,7 @@ object StockForecast {
 
        count = count + 1
        // adding current row to historic data
-       val currentRow = finalResult.filter(x => x._1 == "google").map( x => x._2).collect
+       val currentRow = finalResult.filter(x => x._1 == "ACN").map( x => x._2).collect
        avgValue = avgValue ++ currentRow
        // The model is update once for every 100 batch intreval to incorporate latest data to the existing model
          if(count > 100) {
