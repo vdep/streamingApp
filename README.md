@@ -22,8 +22,8 @@ output from Cassandra tables containing aggregated and forecasted data:
      uniquekey | avg      | count | name | sum       | timestamp
     -----------+----------+-------+------+-----------+---------------
        1976270 | 34.30437 |     3 | ALTR |  102.9131 | 1473075681000
-        268479 | 51.18375 |     2 |  ACN |  102.3675 | 1473075675000
-       1192084 |  34.6661 |     3 | ALTR |  103.9983 | 1473075669000
+        268479 | 51.18375 |     2 |  ACN |  102.3675 | 1473075681000
+       1192084 |  34.6661 |     3 | ALTR |  103.9983 | 1473075684000
 
 
     cqlsh> select * from test.prediction;
