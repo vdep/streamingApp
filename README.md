@@ -14,3 +14,23 @@ The output from kafka is fed to spark for computation. Since the streaming inter
 Autoregressive integrated moving average (ARIMA) model from spark-ts library, which was previously trained on historic data is used for forecasting. The prediction is done for every next immediate time interval. Some algorithms in spark MLlib has .trainOn() method which updates the existing model with the new data. The same process is reproduced here by manually retraining the model after every n streaming intervals. The accuracy of the model is monitored and is used as an indicator along with streaming interval count for model retraining.
 
 The forecasted value is stored in another Cassandra table along with percentage change in the value and trend, when compared to previous interval. This data can be visualized using D3.js in both real time and batch mode.  
+
+output from tables containing aggregated and forecast data in Cassandra:
+
+     cqlsh> select * from test.averaged;
+    
+     uniquekey | avg      | count | name | sum       | timestamp
+    -----------+----------+-------+------+-----------+---------------
+       1976270 | 34.30437 |     3 | ALTR |  102.9131 | 1473075681000
+        268479 | 51.18375 |     2 |  ACN |  102.3675 | 1473075675000
+       1192084 |  34.6661 |     3 | ALTR |  103.9983 | 1473075669000
+
+
+    cqlsh> select * from test.prediction;
+    
+     uniquekey | forecastvalue | percentagechange | trend
+    -----------+---------------+------------------+----------
+       1034048 |      50.39514 |         -1.551 | decrease
+        796357 |      50.28032 |        -1.7521 | decrease
+        710180 |      51.05806 |        -0.2493 | decrease
+       1002066 |      51.61904 |         0.8482 | increase
