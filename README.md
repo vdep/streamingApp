@@ -24,7 +24,8 @@ output from Cassandra tables containing aggregated and forecasted data:
        1976270 | 34.30437 |     3 | ALTR |  102.9131 | 1473075681000
         268479 | 51.18375 |     2 |  ACN |  102.3675 | 1473075681000
        1192084 |  34.6661 |     3 | ALTR |  103.9983 | 1473075684000
-
+        .
+        .
 
     cqlsh> select * from test.prediction;
     
@@ -34,3 +35,5 @@ output from Cassandra tables containing aggregated and forecasted data:
         796357 |      50.28032 |        -1.7521 | decrease
         710180 |      51.05806 |        -0.2493 | decrease
        1002066 |      51.61904 |         0.8482 | increase
+        .
+        .
