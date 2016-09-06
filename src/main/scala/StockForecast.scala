@@ -110,7 +110,7 @@ object StockForecast {
       finalResult.saveToCassandra("test","averaged", SomeColumns("name", "sum", "count", "avg", "timestamp", "uniquekey"))
 
       // filter the particular key(company), saving preedicted values to cassandra table 
-  //    val accumulatorToInt : Int = count.value.toInt
+  //    val accumulatorToInt : Int = count.value
       finalResult.filter(x => x._1 == "ACN").map { row =>
 
         val predictedValue = forecast( existingDataPoints + count)
