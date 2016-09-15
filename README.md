@@ -1,5 +1,5 @@
 # Real Time stock price forecasting using Spark Streaming and Kafka
-                  /* The content of this page is not search engine indexed. */
+
 #Architecture
 <p align="center">
   <img src = "https://github.com/vdep/streamingApps/blob/main/lib/Architecture.png"/>
