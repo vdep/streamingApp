@@ -46,7 +46,7 @@ object StockForecast {
     val brokers = "localhost:9092"
     val topics = "test"
 
-    // Create context with 3 second batch interval
+    // Create context with 3 second batch interval, processing time : ~100ms, scheduling delay : 0
     val sparkConf = new SparkConf().setAppName("DirectKafkaWordCount")
                         .set("spark.cassandra.connection.host", "127.0.0.1")
                         .setMaster("local[*]")
