@@ -36,7 +36,7 @@ object StockForecast {
     
     // convert from array to vectosr type
     val vectors = Vectors.dense(trainData)
-    val arimaModel = ARIMA.fitModel(1,0,1, vectors)
+    val arimaModel = ARIMA.autoFit(vectors)
     arimaModel
   }
 
@@ -47,7 +47,7 @@ object StockForecast {
     val topics = "test"
 
     // Create context with 3 second batch interval, processing time : ~100ms, scheduling delay : 0
-    val sparkConf = new SparkConf().setAppName("DirectKafkaWordCount")
+    val sparkConf = new SparkConf().setAppName("ForecastingSandBox")
                         .set("spark.cassandra.connection.host", "127.0.0.1")
                         .setMaster("local[*]")
     val ssc = new StreamingContext(sparkConf, Seconds(3))
