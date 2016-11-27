@@ -1,18 +1,17 @@
 name := "SparkStockForecast"
 
-version := "1.0"
+version := "1.1"
 
-scalaVersion := "2.10.5"
+scalaVersion := "2.11.8"
 
 libraryDependencies ++= Seq(
 
-	"org.apache.spark" %% "spark-core" % "1.6.0" % "provided",
-	"org.apache.spark" %% "spark-streaming-kafka" % "1.6.0",
-    "org.apache.spark" %% "spark-sql" % "1.6.0"% "provided",
-    "org.apache.spark" %% "spark-catalyst" % "1.6.0" % "provided",
-    "org.apache.spark" %% "spark-mllib" % "1.6.0" % "provided",
-    "org.apache.spark" %% "spark-streaming" % "1.6.0" % "provided",
-    "com.datastax.spark" %% "spark-cassandra-connector" % "1.6.0"
+	  "org.apache.spark" % "spark-core_2.11" % "2.0.0",
+	  "org.apache.spark" % "spark-streaming-kafka_2.11" % "1.6.3",
+    "org.apache.spark" % "spark-sql_2.11" % "2.0.0",
+    "org.apache.spark" % "spark-mllib_2.11" % "2.0.0",
+    "org.apache.spark" % "spark-streaming_2.11" % "2.0.0",
+    "com.datastax.spark" % "spark-cassandra-connector_2.11" % "2.0.0-M3"
 	
 )
 
