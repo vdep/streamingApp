@@ -38,7 +38,7 @@ output from Cassandra tables containing aggregated and forecasted data:
         .
         .
         
-Tools | Versions
+Tool | Version
 :---: | :---:
 Spark | 1.6.0
 Scala | 2.10.5
