@@ -43,6 +43,6 @@ Spark | 1.6.0
 Scala | 2.10.5
 Cassandra | 2.2.5
 Kafka | 0.10.0.0
-Cassandra Connecor | 1.6.0-M2
+Cassandra Connector | 1.6.0-M2
 Kafka Connector | 1.3.0
 Sparkts | 0.13
