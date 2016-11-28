@@ -37,8 +37,9 @@ output from Cassandra tables containing aggregated and forecasted data:
        1002066 |      51.61904 |         0.8482 | increase
         .
         .
+        
 Tools | Versions
---- | ---
+:---: | :---:
 Spark | 1.6.0
 Scala | 2.10.5
 Cassandra | 2.2.5
