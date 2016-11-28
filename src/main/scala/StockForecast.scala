@@ -12,27 +12,25 @@ import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.SparkContext._
 import org.apache.spark.rdd._
-import org.apache.spark.SparkContext
-import com.cloudera.sparkts.models.ARIMA
+import com.cloudera.sparkts.models.{ARIMA, ARIMAModel}
+import com.datastax.spark.connector.mapper.ColumnMapper
 import org.apache.spark.mllib.linalg.Vectors
 import com.datastax.spark.connector.streaming._
+import com.datastax.spark.connector.writer.{RowWriterFactory, WriteConf}
 
 // structure for aggregated data
-case class streamingTuple (
-  name : String,
-  sum : Double,
-  count : Double,
-  avg : Double,
-  timestamp : String,
-  uniquekey : Int
-)
+case class StreamingTuple ( name : String, sum : Double, count : Double, avg : Double,
+                            timestamp : String, uniquekey : Int )
+
+case class PredictionTuple( forecastValue : Double, trend : String, percentageChange : Double,
+                            uniqueKey : Int)
 
 object StockForecast {
 
-/* trains ARIMA model
-   input : historic data
-   output : trained model */
-  def trainModel(trainData : Array[Double]) : com.cloudera.sparkts.models.ARIMAModel = {
+  /* trains ARIMA model
+     input : historic data
+     output : trained model */
+  def trainModel(trainData : Array[Double]) : ARIMAModel = {
     
     // convert from array to vectosr type
     val vectors = Vectors.dense(trainData)
@@ -56,7 +54,7 @@ object StockForecast {
     val data = new SQLContext(ssc.sparkContext).read.format("com.databricks.spark.csv").option("header", "true")
       .option("inferSchema","true").load("/home/vdep/stockData/acnTrain.csv")
 
-    // initial forcasting
+    // initial forecasting
     var avgValue = data.select("V6").rdd.map(x => x(0).toString.toDouble).collect
     var arimaModel = trainModel(avgValue)
     var forecast = arimaModel.forecast(Vectors.dense(avgValue),100) 
@@ -95,39 +93,51 @@ object StockForecast {
       type aggregatedTableType = (String, (Double, Double, String))
       def apply(acc: aggregatedTableType)  = {
         val (key,(sum, count, timeInstance)) = acc
-        (key, sum, count, sum/count, timeInstance.split(" ")(0),scala.util.Random.nextInt(2000000))
+        StreamingTuple(key, sum, count, sum/count, timeInstance.split(" ")(0),scala.util.Random.nextInt(2000000))
       }
 
       /* val finalResult = combined.map { record =>
-         streamingTuple(record._1, record._2._1, record._2._2, (record._2._1/record._2._2), record._2._3.split(" ")(0),scala.util.Random.nextInt(2000000))
+         StreamingTuple(record._1, record._2._1, record._2._2, (record._2._1/record._2._2), record._2._3.split(" ")(0),scala.util.Random.nextInt(2000000))
      }  */
      
-     /* since the batch intreval is different for different data source, the data is aggregated 
-        so that the batch intreval is common for all data sources */
+     /* since the batch interval is different for different data source, the data is aggregated
+        so that the batch interval is common for all data sources */
       val finalResult = combined.map { apply }
       /* saves the data in the RDD at the current interval to cassandra table
          test.averaged is the cassandra table */
-      finalResult.saveToCassandra("test","averaged", SomeColumns("name", "sum", "count", "avg", "timestamp", "uniquekey"))
 
-      // filter the particular key(company), saving preedicted values to cassandra table 
+      def saveToCassandraAveraged()(
+        implicit rwf: RowWriterFactory[StreamingTuple],
+        columnMapper: ColumnMapper[StreamingTuple]
+      ) {
+        finalResult.saveToCassandra("test","averaged", SomeColumns("name", "sum", "count", "avg", "timestamp", "uniquekey"))
+      }
+      saveToCassandraAveraged()
+
+      // filter the particular key(company), saving predicted values to cassandra table
   //    val accumulatorToInt : Int = count.value
-      finalResult.filter(x => x._1 == "ACN").map { row =>
-
+      val predictionTable = finalResult.filter(x => x.name == "ACN").map { row =>
         val predictedValue = forecast( existingDataPoints + count)
 
-        val predictionTableRow = (predictedValue, if(previousValue - predictedValue < 0 ) "increase" else "decrease", 
+        previousValue = row.avg
+        PredictionTuple(predictedValue, if(previousValue - predictedValue < 0 ) "increase" else "decrease",
              (forecast( existingDataPoints + count -1)/previousValue -1) * 100,  scala.util.Random.nextInt(2000000))
- 
-        previousValue = row._4
-        predictionTableRow
-       }.saveToCassandra("test", "prediction", SomeColumns("forecastvalue","trend","percentagechange", "uniquekey"))  
-        
+        }
+
+      def saveToCassandraPrediction()(
+        implicit rwf: RowWriterFactory[PredictionTuple],
+        columnMapper: ColumnMapper[PredictionTuple]
+      ) {
+        predictionTable.saveToCassandra("test", "prediction", SomeColumns("forecastvalue","trend","percentagechange", "uniquekey"))
+      }
+      saveToCassandraPrediction()
+
 
        count = count + 1
        // adding current row to historic data
-       val currentRow = finalResult.filter(x => x._1 == "ACN").map( x => x._2).collect
+       val currentRow = finalResult.filter(x => x.name == "ACN").map( x => x.sum).collect
        avgValue = avgValue ++ currentRow
-       // The model is update once for every 100 batch intreval to incorporate latest data to the existing model
+       // The model is update once for every 100 batch interval to incorporate latest data to the existing model
          if(count > 100) {
             // resetting accumlulator to 0
             count = 0
